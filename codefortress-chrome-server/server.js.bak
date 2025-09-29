@@ -1,0 +1,40 @@
+const WebSocket = require('ws');
+
+// Initialize a WebSocket server on port 8080
+const wss = new WebSocket.Server({ port: 8080 });
+
+// This Set will keep track of all connected clients (VS Code, Chrome, etc.)
+const clients = new Set();
+
+wss.on('connection', ws => {
+  // A new client has connected. Add it to our list.
+  clients.add(ws);
+  console.log('✅ Client connected. Total clients:', clients.size);
+
+  // This is the most important part:
+  ws.on('message', message => {
+    const messageString = message.toString();
+    console.log('Received message from one client. Broadcasting to all others...');
+
+    // Loop through every connected client
+    clients.forEach(client => {
+      // Send the message to every client EXCEPT the one that sent it
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(messageString);
+      }
+    });
+  });
+
+  ws.on('close', () => {
+    // Remove the client when they disconnect
+    clients.delete(ws);
+    console.log('🔌 Client disconnected. Total clients:', clients.size);
+  });
+
+  ws.on('error', (error) => {
+    console.error('WebSocket error:', error);
+    clients.delete(ws); // Also remove on error
+  });
+});
+
+console.log('🚀 WebSocket server started on port 8080');

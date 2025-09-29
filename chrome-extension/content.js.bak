@@ -1,0 +1,86 @@
+// // content.js
+// console.log("Content script loaded");
+
+// // Listen for messages from the background script
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//   console.log("Content script received message:", request);
+
+//   if (request.type === "SCRAPE_PROBLEM") {
+//     try {
+//       const problemStatement = document.querySelector(".problem-statement");
+
+//       if (!problemStatement) {
+//         throw new Error("Problem content not found on page");
+//       }
+
+//       sendResponse({
+//         success: true,
+//         data: problemStatement.innerHTML,
+//       });
+//     } catch (error) {
+//       console.error("Error in content script:", error);
+//       sendResponse({
+//         success: false,
+//         error: error.message,
+//       });
+//     }
+//   }
+
+//   return true; // Keep the message channel open for async response
+// });
+
+
+
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//     console.log("Content script received message:", request);
+
+//     if (request.type === "SCRAPE_PROBLEM") {
+//         try {
+//             const problemStatement = document.querySelector(".problem-statement");
+            
+//             if (!problemStatement) {
+//                 throw new Error("Problem content not found on page");
+//             }
+
+//             // Send complete HTML content
+//             sendResponse({
+//                 success: true,
+//                 data: {
+//                     html: problemStatement.outerHTML,
+//                     url: window.location.href
+//                 }
+//             });
+//         } catch (error) {
+//             console.error("Error in content script:", error);
+//             sendResponse({
+//                 success: false,
+//                 error: error.message
+//             });
+//         }
+//     }
+
+//     return true; // Keep the message channel open for async response
+// });
+
+
+
+
+
+
+
+
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'getProblem') {
+    const problemStatement = document.querySelector('.problem-statement');
+    if (problemStatement) {
+      console.log('Found .problem-statement, sending its HTML back to the requester.');
+      sendResponse({ html: problemStatement.innerHTML });
+    } else {
+      console.log('Could not find .problem-statement on the page.');
+      sendResponse({ html: null }); // Explicitly send null if not found
+    }
+  }
+  // Important: return true to indicate you will send a response asynchronously
+  return true;
+});

@@ -1,0 +1,347 @@
+// document.addEventListener("DOMContentLoaded", async () => {
+//   const problemContent = document.getElementById("problem-content");
+
+//   const showError = (message) => {
+//     if (problemContent) {
+//       problemContent.innerHTML = `<div class="error">${message}</div>`;
+//     }
+//   };
+
+//   const formatProblemContent = (html) => {
+//     // Create a temporary div to parse HTML
+//     const temp = document.createElement("div");
+//     temp.innerHTML = html;
+
+//     // Remove unnecessary elements
+//     temp.querySelectorAll(".MathJax_Preview").forEach((el) => el.remove());
+//     temp.querySelectorAll("style").forEach((el) => el.remove());
+
+//     // Format LaTeX expressions
+//     temp.querySelectorAll('script[type="math/tex"]').forEach((el) => {
+//       const span = document.createElement("span");
+//       span.className = "math";
+//       const isDisplay = el.getAttribute("mode") === "display";
+//       span.textContent = isDisplay
+//         ? `$$${el.textContent}$$`
+//         : `$${el.textContent}$`;
+//       el.replaceWith(span);
+//     });
+
+//     // Add proper spacing and formatting
+//     temp.querySelectorAll(".section-title").forEach((el) => {
+//       el.style.fontWeight = "bold";
+//       el.style.marginTop = "1.5em";
+//       el.style.marginBottom = "0.5em";
+//     });
+
+//     return temp.innerHTML;
+//   };
+
+//   try {
+//     // Get current tab
+//     const [tab] = await chrome.tabs.query({
+//       active: true,
+//       currentWindow: true,
+//     });
+
+//     if (!tab) {
+//       showError("No active tab found");
+//       return;
+//     }
+
+//     // Check if we're on a Codeforces problem page
+//     if (!tab.url.includes("codeforces.com/problemset/problem")) {
+//       showError("Please navigate to a Codeforces problem page");
+//       return;
+//     }
+
+//     // Inject content script
+//     await chrome.scripting.executeScript({
+//       target: { tabId: tab.id },
+//       files: ["content.js"],
+//     });
+
+//     // Small delay to ensure content script is ready
+//     await new Promise((resolve) => setTimeout(resolve, 100));
+
+//     // Send message to content script
+//     chrome.tabs.sendMessage(tab.id, { type: "SCRAPE_PROBLEM" }, (response) => {
+//       if (chrome.runtime.lastError) {
+//         showError(
+//           "Failed to communicate with the page. Please refresh and try again."
+//         );
+//         return;
+//       }
+
+//       if (response && response.success && problemContent) {
+//         const formattedContent = formatProblemContent(response.data);
+//         problemContent.innerHTML = formattedContent;
+
+//         // Initialize MathJax after content is loaded
+//         if (window.MathJax) {
+//           window.MathJax.typesetPromise([problemContent]).catch((err) => {
+//             console.error("MathJax error:", err);
+//           });
+//         }
+//       } else {
+//         showError(response?.error || "Failed to fetch problem content");
+//       }
+//     });
+//   } catch (error) {
+//     console.error("Error:", error);
+//     showError(error.message);
+//   }
+// });
+
+
+
+
+
+
+
+
+// let socket;
+
+// function connectSocket() {
+//   socket = new WebSocket('ws://localhost:8080');
+
+//   socket.onopen = () => {
+//     console.log('Connected to WebSocket server');
+//   };
+
+//   socket.onclose = () => {
+//     console.log('Disconnected from WebSocket server');
+//   };
+
+//   socket.onerror = (err) => {
+//     console.error('WebSocket error:', err);
+//   };
+// }
+
+// document.addEventListener("DOMContentLoaded", () => {
+//   connectSocket(); // Connect once popup loads
+
+//   const fetchBtn = document.getElementById('fetchBtn');
+//   const output = document.getElementById('output');
+
+//   fetchBtn.addEventListener('click', () => {
+//     output.textContent = "Fetching problem...";
+
+//     chrome.runtime.sendMessage({ type: "FETCH_PROBLEM" }, (response) => {
+//       if (!response || !response.success) {
+//         output.textContent = "Failed to fetch problem.";
+//         return;
+//       }
+
+//       output.textContent = response.html;
+
+//       // Send HTML to VS Code through WebSocket
+//       if (socket && socket.readyState === WebSocket.OPEN) {
+//         socket.send(JSON.stringify({
+//           type: "problem",
+//           html: response.html
+//         }));
+//         console.log("Problem sent to VS Code");
+//       }
+//     });
+//   });
+// });
+
+
+
+
+
+
+// let ws = null;
+// let reconnectAttempts = 0;
+// const MAX_RECONNECT_ATTEMPTS = 5;
+// const RECONNECT_DELAY = 3000;
+
+// function connectWebSocket() {
+//     if (ws && ws.readyState === WebSocket.CONNECTING) return;
+
+//     ws = new WebSocket('ws://localhost:8080');
+
+//     ws.onopen = () => {
+//         console.log('Connected to WebSocket server');
+//         reconnectAttempts = 0;
+//     };
+
+//     ws.onclose = () => {
+//         console.log('WebSocket connection closed');
+//         if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+//             reconnectAttempts++;
+//             setTimeout(connectWebSocket, RECONNECT_DELAY);
+//         }
+//     };
+
+//     ws.onerror = (error) => {
+//         console.error('WebSocket error:', error);
+//     };
+
+//     ws.onmessage = (event) => {
+//         try {
+//             const data = JSON.parse(event.data);
+//             handleWebSocketMessage(data);
+//         } catch (error) {
+//             console.error('Error processing message:', error);
+//         }
+//     };
+// }
+
+// function handleWebSocketMessage(data) {
+//     // Handle different message types
+//     switch (data.type) {
+//         case 'connected':
+//             console.log('Connection confirmed by server');
+//             break;
+//         // Add other message type handlers as needed
+//     }
+// }
+
+// // Initial connection
+// connectWebSocket();
+
+// // Reconnect on focus
+// chrome.windows.onFocusChanged.addListener(() => {
+//     if (ws?.readyState === WebSocket.CLOSED) {
+//         connectWebSocket();
+//     }
+// });
+
+
+
+
+
+
+
+
+
+
+
+// document.addEventListener('DOMContentLoaded', async () => {
+//     const problemContent = document.getElementById('problem-content');
+    
+//     // Show loading state
+//     const showLoading = () => {
+//         problemContent.innerHTML = '<div class="loading">Loading problem content...</div>';
+//     };
+
+//     // Show error state
+//     const showError = (message) => {
+//         problemContent.innerHTML = `<div class="error">${message}</div>`;
+//     };
+
+//     try {
+//         showLoading();
+
+//         // Create WebSocket connection
+//         const ws = new WebSocket('ws://localhost:8080');
+
+//         ws.onopen = () => {
+//             console.log('Connected to WebSocket server');
+//             // Send initial request
+//             ws.send(JSON.stringify({
+//                 type: 'GET_PROBLEM',
+//                 url: window.location.href
+//             }));
+//         };
+
+//         ws.onmessage = (event) => {
+//             const response = JSON.parse(event.data);
+//             console.log('Received:', response);
+
+//             if (response.type === 'CONNECTION_SUCCESS') {
+//                 console.log('Successfully connected to server');
+//             } else if (response.type === 'PROBLEM_DATA') {
+//                 problemContent.innerHTML = response.data;
+//             }
+//         };
+
+//         ws.onerror = (error) => {
+//             console.error('WebSocket error:', error);
+//             showError('Failed to connect to server');
+//         };
+
+//         ws.onclose = () => {
+//             console.log('Connection closed');
+//             showError('Connection to server closed');
+//         };
+
+//     } catch (error) {
+//         console.error('Error:', error);
+//         showError(error.message);
+//     }
+// });
+
+
+
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   const socket = new WebSocket('ws://localhost:8080');
+//   const contentDiv = document.getElementById('content');
+
+//   socket.onopen = () => {
+//     console.log('WebSocket connection established');
+//     contentDiv.textContent = 'Fetching problem...';
+
+//     // Query for the active tab to send a message to its content script.
+//     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+//       // Defensive check to make sure we found a tab.
+//       if (tabs.length === 0) {
+//         console.error('Could not find active tab.');
+//         contentDiv.textContent = 'Error: Could not find active tab.';
+//         return;
+//       }
+
+//       chrome.tabs.sendMessage(tabs[0].id, { action: "getProblem" }, (response) => {
+//         // This is a critical error check. It will tell you if the content script isn't running on the page.
+//         if (chrome.runtime.lastError) {
+//           console.error('Error messaging content script:', chrome.runtime.lastError.message);
+//           contentDiv.textContent = 'Error: Could not connect to the Codeforces page. Please make sure you are on a problem page and refresh the page.';
+//           return;
+//         }
+
+//         if (response && response.html) {
+//           console.log('Received HTML from content script. Sending over WebSocket.');
+//           const message = JSON.stringify({ type: 'problem', payload: response.html });
+//           socket.send(message);
+//           contentDiv.innerHTML = response.html;
+//         } else {
+//           console.log('Did not receive HTML from content script.');
+//           contentDiv.textContent = 'Could not find a problem statement on this page.';
+//         }
+//       });
+//     });
+//   };
+
+//   socket.onmessage = (event) => {
+//     console.log('Message from server ', event.data);
+//   };
+
+//   socket.onerror = (error) => {
+//     console.error('WebSocket Error:', error);
+//     contentDiv.textContent = 'Could not connect to the server. Is it running?';
+//   };
+
+//   socket.onclose = () => {
+//     console.log('WebSocket connection closed');
+//   };
+// });
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Simply send a message to the background script to kick things off.
+  chrome.runtime.sendMessage({ action: "fetchProblem" }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError.message);
+      document.getElementById('content').textContent = "An error occurred. Check the console.";
+    } else {
+      console.log(response.status);
+      // You can update the popup UI based on the immediate response if needed.
+      document.getElementById('content').textContent = response.status;
+    }
+  });
+});

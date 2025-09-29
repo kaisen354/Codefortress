@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Codeforces Problem Viewer</title>
+  <style>
+    body {
+      width: 400px;
+      font-family: sans-serif;
+    }
+    #content {
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>Codeforces Problem</h1>
+  <div id="content">Loading...</div>
+  <script src="popup.js"></script>
+</body>
+</html>
