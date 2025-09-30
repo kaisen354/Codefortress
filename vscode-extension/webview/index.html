@@ -1,34 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'none'; 
+        style-src {{CSP_SOURCE}} 'unsafe-inline'; 
+        script-src {{CSP_SOURCE}} 'unsafe-inline';
+    ">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codeforces Problem Viewer</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="{{STYLE_URI}}">
+    
     <script>
       window.MathJax = { tex: { inlineMath: [['$', '$']] } };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="{{MATHJAX_URI}}"></script>
+
 </head>
-<body class="bg-white dark:bg-gray-950">
+<body class="bg-white">
     <main>
         <div class="max-w-7xl mx-auto">
             <div class="p-4 relative">
-                <h1 class="text-2xl font-bold text-center text-gray-800 dark:text-white">
+                <h1 class="text-2xl font-bold text-center text-gray-800">
                   Codeforces Problem Viewer
                 </h1>
-                <button id="theme-toggle" class="absolute top-4 right-4 p-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200" aria-label="Toggle theme">
-                    🌞
-                </button>
             </div>
-            <hr class="border-gray-200 dark:border-gray-700"/>
-            <div id="problem-viewer" class="p-4 md:p-8 font-sans text-gray-800 dark:text-gray-200">
+            <hr class="border-gray-200"/>
+            <div id="problem-viewer" class="p-4 md:p-8 font-sans text-gray-800">
                 <div class="flex items-center justify-center h-full text-gray-500 p-8">
                     Waiting for problem HTML...
                 </div>
             </div>
         </div>
     </main>
-    <script src="script.js"></script>
+    <script src="{{SCRIPT_URI}}"></script>
 </body>
 </html>
