@@ -1,6 +1,7 @@
 # CodeFortress Extension
 
 This project is a combination of a Chrome extension and a VS Code extension that allows you to scrape a problem from Codeforces and view it directly in your VS Code editor.
+
 <img width="1920" height="1080" alt="Screenshot (676)" src="https://github.com/user-attachments/assets/ea51dbc8-9d49-4102-b1ee-47d67d8e8994" />
 
 
