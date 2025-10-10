@@ -19,15 +19,11 @@
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = htmlContent;
 
-            // --- FIX FOR DOUBLE MATHJAX RENDER ---
-            // Find and remove any script tags in the received HTML that call MathJax.
-            // This prevents the rogue script from running.
-            tempDiv.querySelectorAll('script').forEach(script => {
-                if (script.textContent.includes('MathJax.Hub.Queue(["Typeset",MathJax.Hub])')) {
-                    script.remove();
-                }
-            });
-            // --- END OF FIX ---
+            // remove all element with MJX_Assistive_MathML class
+            tempDiv.querySelectorAll('.MJX_Assistive_MathML').forEach(el => el.remove());
+
+            // Fix image URLs - Convert relative URLs to absolute Codeforces URLs
+            fixImageUrls(tempDiv);
 
             const problem = {
                 title: tempDiv.querySelector(".header .title")?.textContent?.trim() || "Untitled Problem",
@@ -65,7 +61,7 @@
                     `;
                 }).join('');
             } else {
-                 samplesHTML += tempDiv.querySelector(".sample-tests")?.innerHTML || "No samples found.";
+                samplesHTML += tempDiv.querySelector(".sample-tests")?.innerHTML || "No samples found.";
             }
 
             problemViewer.innerHTML = `
@@ -89,12 +85,74 @@
 
             addCollapsibleListeners();
             addCopyButtonListeners();
-            renderMath();
-
+            addImageErrorHandling();
         } catch (error) {
             console.error("Failed to render problem:", error);
             problemViewer.innerHTML = `<p>Error rendering problem. Check the Webview Developer Tools console for details.</p><pre>${error.stack}</pre>`;
         }
+    }
+
+    /**
+     * Fixes image URLs to use absolute paths from Codeforces
+     * @param {HTMLElement} element 
+     */
+    function fixImageUrls(element) {
+        const images = element.querySelectorAll('img');
+        images.forEach(img => {
+            let src = img.getAttribute('src');
+            if (src) {
+                // If the URL is relative, make it absolute
+                if (src.startsWith('//')) {
+                    img.setAttribute('src', 'https:' + src);
+                } else if (src.startsWith('/')) {
+                    img.setAttribute('src', 'https://codeforces.com' + src);
+                } else if (!src.startsWith('http')) {
+                    img.setAttribute('src', 'https://codeforces.com/' + src);
+                }
+
+                // Add loading and error handling attributes
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('alt', 'Problem image');
+
+                // Add inline styles for better display
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.display = 'block';
+                img.style.margin = '10px auto';
+            }
+        });
+    }
+
+    /**
+     * Add error handling for images that fail to load
+     */
+    function addImageErrorHandling() {
+        const images = problemViewer.querySelectorAll('img');
+        images.forEach(img => {
+            img.addEventListener('error', function () {
+                // Create a placeholder div when image fails to load
+                const placeholder = document.createElement('div');
+                placeholder.style.cssText = `
+                    background: #f0f0f0;
+                    border: 2px dashed #ccc;
+                    padding: 20px;
+                    text-align: center;
+                    color: #666;
+                    border-radius: 8px;
+                    margin: 10px auto;
+                    max-width: 100%;
+                `;
+                placeholder.innerHTML = `
+                    <p>⚠️ Image failed to load</p>
+                    <p style="font-size: 12px; margin-top: 8px;">
+                        <a href="${this.src}" target="_blank" style="color: #0078d4;">
+                            View image in browser
+                        </a>
+                    </p>
+                `;
+                this.parentNode.replaceChild(placeholder, this);
+            });
+        });
     }
 
     function addCollapsibleListeners() {
@@ -119,11 +177,35 @@
             });
         });
     }
-    
+
     function renderMath() {
-        if (window.MathJax && window.MathJax.typesetPromise) {
+        // Ensure MathJax is loaded and ready
+        if (!window.MathJax || !window.MathJax.typesetPromise) return;
+
+        const container = document.getElementById('problem-viewer');
+        if (!container) return;
+
+        // Prevent unnecessary re-rendering
+        const alreadyRendered = container.querySelector('.MathJax');
+        if (alreadyRendered) {
+            console.log("MathJax already rendered – skipping re-typeset");
+            return;
+        }
+
+        try {
             console.log("Rendering MathJax...");
-            window.MathJax.typesetPromise().catch(err => console.error("MathJax typesetting failed:", err));
+
+            // Clear previous renders (if any) in the container
+            if (window.MathJax.typesetClear) {
+                window.MathJax.typesetClear([container]);
+            }
+
+            // Render only within the container
+            window.MathJax.typesetPromise([container])
+                .then(() => console.log("MathJax render complete"))
+                .catch(err => console.error("MathJax render failed:", err));
+        } catch (err) {
+            console.error("Error during MathJax rendering:", err);
         }
     }
 

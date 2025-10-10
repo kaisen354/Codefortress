@@ -4,12 +4,14 @@
   "description": "Displays Codeforces problems from a WebSocket connection.",
   "private": true,
   "version": "0.0.1",
- 
   "engines": {
     "vscode": "^1.82.0"
   },
+  "categories": [
+    "Other"
+  ],
   "activationEvents": [
-    "onCommand:codeforces-problem-viewer.showProblem"
+    "onView:codeforcesProblemView"
   ],
   "main": "./extension.js",
   "scripts": {
@@ -45,10 +47,29 @@
     "webpack-cli": "^5.0.1"
   },
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codeforces-sidebar",
+          "title": "Codeforces",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "codeforces-sidebar": [
+        {
+          "type": "webview",
+          "id": "codeforcesProblemView",
+          "name": "Problem Viewer"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "codeforces-problem-viewer.showProblem",
-        "title": "Show Codeforces Problem"
+        "title": "Show Codeforces Problem",
+        "category": "Codeforces"
       }
     ]
   }

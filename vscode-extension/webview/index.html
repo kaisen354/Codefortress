@@ -1,33 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    
+
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'none'; 
+        img-src https: data: blob:;
+        font-src {{CSP_SOURCE}} https: data:;
         style-src {{CSP_SOURCE}} 'unsafe-inline'; 
         script-src {{CSP_SOURCE}} 'unsafe-inline';
     ">
-    
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Codeforces Problem Viewer</title>
     <link rel="stylesheet" href="{{STYLE_URI}}">
-    
+
     <script>
-      window.MathJax = { tex: { inlineMath: [['$', '$']] } };
+        window.MathJax = {
+            options: {
+                menuOptions: {
+                    settings: {
+                        enrich: true,         // true to enable semantic-enrichment
+                        collapsible: false,   // true to enable collapsible math
+                        speech: true,         // true to enable speech generation
+                        braille: true,        // true to enable Braille generation
+                        assistiveMml: false,  // true to enable assistive MathML
+                    }
+                }
+            },
+            tex: { inlineMath: [['$', '$']] }
+        };
     </script>
     <script id="MathJax-script" async src="{{MATHJAX_URI}}"></script>
 
 </head>
+
 <body class="bg-white">
     <main>
         <div class="max-w-7xl mx-auto">
             <div class="p-4 relative">
                 <h1 class="text-2xl font-bold text-center text-gray-800">
-                  Codeforces Problem Viewer
+                    Codeforces Problem Viewer
                 </h1>
             </div>
-            <hr class="border-gray-200"/>
+            <hr class="border-gray-200" />
             <div id="problem-viewer" class="p-4 md:p-8 font-sans text-gray-800">
                 <div class="flex items-center justify-center h-full text-gray-500 p-8">
                     Waiting for problem HTML...
@@ -37,4 +54,5 @@
     </main>
     <script src="{{SCRIPT_URI}}"></script>
 </body>
+
 </html>
